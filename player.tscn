@@ -1,0 +1,30 @@
+[gd_scene load_steps=6 format=3 uid="uid://d1buhsdr2l6fu"]
+
+[ext_resource type="Script" path="res://player.gd" id="1_p7cck"]
+[ext_resource type="Texture2D" uid="uid://b7dg4pfv5wkuv" path="res://icon.svg" id="2_5ggw5"]
+[ext_resource type="PackedScene" uid="uid://dcu83qqbw8nt7" path="res://trail.tscn" id="3_ucavu"]
+[ext_resource type="Script" path="res://TrailObject.gd" id="4_s4he6"]
+[ext_resource type="AudioStream" uid="uid://brjcet1l0gkay" path="res://winter_moon_liveclarinet.wav" id="5_mi1rc"]
+
+[node name="player" type="CharacterBody2D"]
+position = Vector2(600, 300)
+scale = Vector2(0.25, 0.25)
+script = ExtResource("1_p7cck")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+visible = false
+texture = ExtResource("2_5ggw5")
+
+[node name="Trail" parent="." instance=ExtResource("3_ucavu")]
+top_level = true
+z_index = -1
+width = 2.0
+joint_mode = 2
+begin_cap_mode = 2
+end_cap_mode = 1
+script = ExtResource("4_s4he6")
+MAX_LENGTH = 38
+
+[node name="Player" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("5_mi1rc")
+autoplay = true
