@@ -2,6 +2,7 @@ extends Line2D
 class_name Trails
 
 var queue : Array
+var saved_widths : Array
 @export var MAX_LENGTH : int
 var x_offset : float = 0
 var point_every : float = 0.1
@@ -19,6 +20,7 @@ var queueOriginalValues : Array;
 var queueRadians : Array;
 var queueHowLongLived : Array;
 var DEBUG = false;
+var rng : RandomNumberGenerator;
 
 var DELTA_MULTIPLIER = 4;
 
@@ -29,6 +31,7 @@ func _mutate_old_points(delta):
 	for i in range(1, queue.size()):
 		var point = queue[i]
 		point.x = point.x - 2
+		self.set_point_position(i, point)
 		
 		var reductionConstant = 0.0
 		var reductionFactor = queueHowLongLived[i] * reductionConstant
@@ -40,12 +43,12 @@ func _mutate_old_points(delta):
 			#print("old point was " + str(point.y))
 		if new_amplitude < 0:
 			new_amplitude = 0
-		queueRadians[i] += delta * DELTA_MULTIPLIER
-		if DEBUG:
-			print("new radians is " + str(queueRadians[i]))
-		point.y = _get_position().y + (sin(queueRadians[i]) * new_amplitude)
-		if DEBUG:
-			print("new y is " + str(point.y))
+#		queueRadians[i] += delta * DELTA_MULTIPLIER
+#		if DEBUG:
+#			print("new radians is " + str(queueRadians[i]))
+#		point.y = _get_position().y + (sin(queueRadians[i]) * new_amplitude)
+#		if DEBUG:
+#			print("new y is " + str(point.y))
 		queueHowLongLived[i] += 1
 
 		queue[i] = point
@@ -95,6 +98,21 @@ func _process(delta):
 			print("pushing impulse " + str(impulse) + " at y " + str(pos.y))
 			#last_sign = true
 		queue.insert(0, pos)
+		add_point(pos, 0)
+		width_curve.clear_points()
+		#print('point count = ' + str(self.get_point_count()))
+		#print('saved width count = ' + str(saved_widths.size()))
+		var curve_increment : float = 1.0 / self.get_point_count()
+		for i in range(0, self.get_point_count()):
+			if saved_widths.size() > i:
+				width_curve.add_point(Vector2(curve_increment*i, saved_widths[i]))
+			else:
+				var newwidth = rng.randf() * 5
+				saved_widths.insert(i, newwidth)
+				width_curve.add_point(Vector2(curve_increment*i, newwidth))
+			#print('added at curve increment ' + str(curve_increment*i))
+		#print(saved_widths)
+		width_curve.bake()
 		queueOriginalValues.insert(0, impulse)
 		if DEBUG:
 			print('pushing arcsin of impulse ' + str(asin(impulse)))
@@ -109,18 +127,22 @@ func _process(delta):
 		if DEBUG:
 			print('ending queue')
 		
-	clear_points()
+	#clear_points()
 	#if queue.size() > 0:
 		#add_point(queue[0])
-	if DEBUG:
-		print('starting queue')
+	#if DEBUG:
+	#	print('starting queue')
 	#add_point(Vector2(630, 300))
-	for point in queue:
-		if DEBUG:
-			print(point)
-		add_point(point)
-	if DEBUG:
-		print('ending queue')
+	#self.width_curve.clear_points()
+	#for point in queue:
+	#	self.width_curve.add_point(point)
+	#self.width_curve.bake()
+	#for i in range(0, queue.size()):
+	#	add_point(self.queue[i])
+	#if DEBUG:
+	#	print('ending queue')
+	#var p = self.width_curve.get_baked_points
+	#print(p)
 
 
 func _get_position():
@@ -184,8 +206,6 @@ func _get_impulse():
 	if DEBUG:
 		print("frequencyDiff = " + str(frequencyDiff))
 	var impulse = remap(frequencyDiff, -200, 200, 0, 200)
-	if is_nan(impulse):
-		print("nan impulse")
 	if impulse < 0:
 		impulse = 0
 	#if DEBUG:
@@ -195,3 +215,5 @@ func _get_impulse():
 
 func _ready():
 	spectrum = AudioServer.get_bus_effect_instance(0, 0)
+	rng = RandomNumberGenerator.new()
+	width_curve.clear_points()

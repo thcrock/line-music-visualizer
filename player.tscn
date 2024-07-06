@@ -7,7 +7,7 @@
 [ext_resource type="AudioStream" uid="uid://brjcet1l0gkay" path="res://winter_moon_liveclarinet.wav" id="5_mi1rc"]
 
 [node name="player" type="CharacterBody2D"]
-position = Vector2(600, 300)
+position = Vector2(591, 163)
 scale = Vector2(0.25, 0.25)
 script = ExtResource("1_p7cck")
 
@@ -18,12 +18,10 @@ texture = ExtResource("2_5ggw5")
 [node name="Trail" parent="." instance=ExtResource("3_ucavu")]
 top_level = true
 z_index = -1
-width = 2.0
-joint_mode = 2
-begin_cap_mode = 2
+width = 5.0
 end_cap_mode = 1
 script = ExtResource("4_s4he6")
-MAX_LENGTH = 38
+MAX_LENGTH = 39
 
 [node name="Player" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("5_mi1rc")
