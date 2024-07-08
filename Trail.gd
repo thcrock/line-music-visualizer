@@ -1,11 +1,11 @@
-extends Line2D
+extends Node2D
 class_name Trails
 
 var queue : Array
 var saved_widths : Array
 @export var MAX_LENGTH : int
 var x_offset : float = 0
-var point_every : float = 0.1
+var point_every : float = 0.05
 var time_since_last_point : float = 0
 var y_offset : float = 50
 var last_five_frames = {}
@@ -23,15 +23,45 @@ var DEBUG = false;
 var rng : RandomNumberGenerator;
 
 var DELTA_MULTIPLIER = 4;
+var last_parent : Line2D;
+var last_point : Vector2;
+enum DIRECTION { INC, DEC, EQU }
+var current_width_direction : DIRECTION = DIRECTION.EQU;
+var last_width = 2.4;
+var points_left_in_direction : int = 4;
 
 var spectrum
 
 
+func _mutate_point(child: Node2D):
+	var l = child as Line2D;
+	if l.get_point_position(0).x < -200:
+		#print('reparenting children of ' + str(child))
+		for c2 in child.get_children():
+			c2.reparent(self)
+			#print('reparented child ' + str(c2))
+		child.queue_free()
+	else:
+		var p1 = l.get_point_position(0)
+		p1.x = p1.x - 2
+		l.set_point_position(0, p1)
+		var p2 = l.get_point_position(1)
+		p2.x = p2.x - 2
+		l.set_point_position(1, p2)
+		for c in child.get_children():
+			_mutate_point(c)
+		
+		
 func _mutate_old_points(delta):
+	for child in self.get_children():
+		_mutate_point(child)
+
+		
+		
 	for i in range(1, queue.size()):
 		var point = queue[i]
 		point.x = point.x - 2
-		self.set_point_position(i, point)
+		#self.set_point_position(i, point)
 		
 		var reductionConstant = 0.0
 		var reductionFactor = queueHowLongLived[i] * reductionConstant
@@ -54,6 +84,64 @@ func _mutate_old_points(delta):
 		queue[i] = point
 		
 		#set_point_position(i,  Vector2(point.x, point.y))	
+func _compute_new_width(direction : DIRECTION):
+	var new_width;
+	if direction == DIRECTION.INC:
+		new_width = self.last_width + ((self.points_left_in_direction/2) + rng.randf());
+	elif direction == DIRECTION.DEC:
+		new_width = self.last_width - ((self.points_left_in_direction/2) + rng.randf());
+	else:
+		new_width = self.last_width	 + (-0.5 + rng.randf());
+		
+	var max = 10.0
+	var min = 2.0;
+	if new_width < min:
+		new_width = min;
+	if new_width > max:
+		new_width = max;
+	return new_width
+	
+func new_line(parent_line: Line2D, fromPos: Vector2, toPos: Vector2):
+	var line = Line2D.new()
+	line.begin_cap_mode = 2
+	line.end_cap_mode = 2
+	line.joint_mode = 2
+	self.points_left_in_direction -= 1;
+	if self.points_left_in_direction > 0:
+		#print('continuing current width direction of ' + str(self.current_width_direction))
+		line.width = self._compute_new_width(self.current_width_direction)
+	else:
+		var next = rng.randi_range(0, 2)
+		if next == 0:
+			self.current_width_direction = DIRECTION.EQU;
+			self.points_left_in_direction = 3
+		elif next == 1:
+			self.current_width_direction = DIRECTION.DEC;
+			self.points_left_in_direction = 4
+		else:
+			self.current_width_direction = DIRECTION.INC;
+			self.points_left_in_direction = 4
+		#print('chose new width direction of ' + str(self.current_width_direction))
+		
+		line.width = self._compute_new_width(self.current_width_direction)
+		print(line.width)
+		
+	self.last_width = line.width;
+			
+	line.antialiased = true;
+	line.default_color = Color(0, 0, 0, 1)
+	var points = [
+		fromPos,
+		toPos		
+	]
+	line.points = points
+	if parent_line != null:
+		add_child(line)
+	else:
+		add_child(line)
+	return line
+	
+	
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	self._mutate_old_points(delta)
@@ -70,7 +158,9 @@ func _process(delta):
 		time_since_last_point = 0
 		var pos = _get_position()
 		#pos.y = get_global_mouse_position().y
-		var impulse = _get_impulse()
+		var impulseData = _get_impulse()
+		var impulse = impulseData[0]
+		var speed = impulseData[1]
 		if not impulse:
 			impulse = 0
 		var impulseRadians = remap(impulse, 0, 200, -1.0, 1.0)
@@ -82,9 +172,9 @@ func _process(delta):
 		if queue.size() > 2:
 			if DEBUG:
 				print('prev radians = ' + str(queueRadians[0]))
-				print('prev radians + delta = ' + str(queueRadians[0] + (delta*DELTA_MULTIPLIER)))
-				print('with sin = ' + str(sin(queueRadians[0] + (delta*DELTA_MULTIPLIER))))
-			var newRadians = (sin(queueRadians[0] + (delta*DELTA_MULTIPLIER)))
+				print('prev radians + delta = ' + str(queueRadians[0] + (delta*speed)))
+				print('with sin = ' + str(sin(queueRadians[0] + (delta*speed))))
+			var newRadians = (sin(queueRadians[0] + (delta*speed)))
 			if DEBUG:
 				print("New Radians = " + str(newRadians))
 			pos.y = _get_position().y + (newRadians * impulse)
@@ -97,25 +187,38 @@ func _process(delta):
 		if DEBUG:
 			print("pushing impulse " + str(impulse) + " at y " + str(pos.y))
 			#last_sign = true
-		queue.insert(0, pos)
-		add_point(pos, 0)
-		width_curve.clear_points()
+
+		#queue.insert(0, pos)
+		#add_point(pos, 0)
+		#width_curve.clear_points()
 		#print('point count = ' + str(self.get_point_count()))
 		#print('saved width count = ' + str(saved_widths.size()))
-		var curve_increment : float = 1.0 / self.get_point_count()
-		for i in range(0, self.get_point_count()):
-			if saved_widths.size() > i:
-				width_curve.add_point(Vector2(curve_increment*i, saved_widths[i]))
-			else:
-				var newwidth = rng.randf() * 5
-				saved_widths.insert(i, newwidth)
-				width_curve.add_point(Vector2(curve_increment*i, newwidth))
+		#var curve_increment : float = 1.0 / self.get_point_count()
+		#for i in range(0, self.get_point_count()):
+		#	if saved_widths.size() > i:
+		#		width_curve.add_point(Vector2(curve_increment*i, saved_widths[i]))
+		#	else:
+		#		var newwidth = rng.randf() * 5
+		#		saved_widths.insert(i, newwidth)
+		#		width_curve.add_point(Vector2(curve_increment*i, newwidth))
 			#print('added at curve increment ' + str(curve_increment*i))
 		#print(saved_widths)
-		width_curve.bake()
+		#width_curve.bake()
+		var old_point = null;
+		if last_parent != null:
+			old_point = last_parent.get_point_position(1)
+			var nl = new_line(last_parent, old_point, pos)
+			last_parent = nl;
+		elif last_point != Vector2.ZERO:
+			var nl = new_line(null, last_point, pos)
+			last_parent = nl;
+		else:
+			print('initial point = ' + str(pos))
+			last_point = pos
 		queueOriginalValues.insert(0, impulse)
 		if DEBUG:
 			print('pushing arcsin of impulse ' + str(asin(impulse)))
+		queue.insert(0, pos)
 		queueRadians.insert(0, asin(impulse))
 		queueHowLongLived.insert(0, 0)
 		if DEBUG:
@@ -161,6 +264,8 @@ func _save_frequencies():
 
 func _frequency_diff():
 	var totalFrequencyDiff : float = 0;
+	var biggestFrequencyDiff : float = 0;
+	var frequencyOfBiggestDiff : float = 0;
 	for k in self.frequenciesThisFrame:
 		var v = self.frequenciesThisFrame[k]
 		var thisFrequencyDiff = 0;
@@ -170,9 +275,12 @@ func _frequency_diff():
 		else:
 			thisFrequencyDiff = v
 			#print('new of ' + str(thisFrequencyDiff))
+		if thisFrequencyDiff > biggestFrequencyDiff:
+			biggestFrequencyDiff = thisFrequencyDiff
+			frequencyOfBiggestDiff = k
 		totalFrequencyDiff += thisFrequencyDiff
 	#print("Total frequency diff: " + str(totalFrequencyDiff))
-	return totalFrequencyDiff
+	return [totalFrequencyDiff, frequencyOfBiggestDiff]
 			
 
 func _get_impulse():
@@ -183,7 +291,9 @@ func _get_impulse():
 	var highest_hz = 0
 	var pstr = ''
 	self._save_frequencies()
-	var frequencyDiff = self._frequency_diff()
+	var frequencyDiffInfo = self._frequency_diff()
+	var frequencyDiff = frequencyDiffInfo[0]
+	var frequencyWithBiggestDiff = frequencyDiffInfo[1]
 	"""
 	for i in range(1, VU_COUNT + 1):
 		var hz = i * FREQ_MAX / VU_COUNT
@@ -205,15 +315,25 @@ func _get_impulse():
 	self.frequenciesLastFrame = self.frequenciesThisFrame.duplicate(true)
 	if DEBUG:
 		print("frequencyDiff = " + str(frequencyDiff))
+	if is_inf(frequencyDiff) or is_nan(frequencyDiff):
+		frequencyDiff = 0.0
 	var impulse = remap(frequencyDiff, -200, 200, 0, 200)
 	if impulse < 0:
 		impulse = 0
 	#if DEBUG:
 		#print("impulse = " + str(impulse))
 	#impulse = 50
-	return impulse
+	#print('frequency with biggest diff = ' + str(frequencyWithBiggestDiff))
+	var speed = 0
+	if frequencyWithBiggestDiff > 4000:
+		speed = 10.0
+	elif frequencyWithBiggestDiff > 1000:
+		speed = 4.0
+	else:
+		speed = 1.0
+	return [impulse, speed]
 
 func _ready():
 	spectrum = AudioServer.get_bus_effect_instance(0, 0)
 	rng = RandomNumberGenerator.new()
-	width_curve.clear_points()
+	#width_curve.clear_points()

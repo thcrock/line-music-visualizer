@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://b7dg4pfv5wkuv" path="res://icon.svg" id="2_5ggw5"]
 [ext_resource type="PackedScene" uid="uid://dcu83qqbw8nt7" path="res://trail.tscn" id="3_ucavu"]
 [ext_resource type="Script" path="res://TrailObject.gd" id="4_s4he6"]
-[ext_resource type="AudioStream" uid="uid://brjcet1l0gkay" path="res://winter_moon_liveclarinet.wav" id="5_mi1rc"]
+[ext_resource type="AudioStream" uid="uid://cq2m8he4u3ic5" path="res://winter_moon_liveclarinet.mp3" id="5_yvdvm"]
 
 [node name="player" type="CharacterBody2D"]
 position = Vector2(591, 163)
@@ -18,11 +18,11 @@ texture = ExtResource("2_5ggw5")
 [node name="Trail" parent="." instance=ExtResource("3_ucavu")]
 top_level = true
 z_index = -1
-width = 5.0
+points = PackedVector2Array(516, 146)
 end_cap_mode = 1
 script = ExtResource("4_s4he6")
 MAX_LENGTH = 39
 
 [node name="Player" type="AudioStreamPlayer" parent="."]
-stream = ExtResource("5_mi1rc")
+stream = ExtResource("5_yvdvm")
 autoplay = true
