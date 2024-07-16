@@ -101,35 +101,31 @@ func _compute_new_width(direction : DIRECTION):
 		new_width = max;
 	return new_width
 	
-func new_line(parent_line: Line2D, fromPos: Vector2, toPos: Vector2):
+func new_line(parent_line: Line2D, fromPos: Vector2, toPos: Vector2, radians: float):
 	var line = Line2D.new()
 	line.begin_cap_mode = 2
 	line.end_cap_mode = 2
 	line.joint_mode = 2
-	self.points_left_in_direction -= 1;
-	if self.points_left_in_direction > 0:
-		#print('continuing current width direction of ' + str(self.current_width_direction))
-		line.width = self._compute_new_width(self.current_width_direction)
-	else:
-		var next = rng.randi_range(0, 2)
-		if next == 0:
-			self.current_width_direction = DIRECTION.EQU;
-			self.points_left_in_direction = 3
-		elif next == 1:
-			self.current_width_direction = DIRECTION.DEC;
-			self.points_left_in_direction = 4
-		else:
-			self.current_width_direction = DIRECTION.INC;
-			self.points_left_in_direction = 4
-		#print('chose new width direction of ' + str(self.current_width_direction))
-		
-		line.width = self._compute_new_width(self.current_width_direction)
-		print(line.width)
+	var maxThick = 10
+	var minThick = 2
+	#print('radians = ' + str(radians))
+	var shouldGetThick : bool = true if toPos.y > (fromPos.y + 10) else false
+	if shouldGetThick and parent_line != null and parent_line.width < maxThick:
+		line.width = parent_line.width + 1.5
+	if parent_line == null:
+		line.width = minThick
+	if not shouldGetThick:
+		line.width = minThick
+	#print(line.width)
 		
 	self.last_width = line.width;
 			
 	line.antialiased = true;
-	line.default_color = Color(0, 0, 0, 1)
+	line.default_color = Color(255.0/255, 16.0/255, 240.0/255, 1)
+	if line.width > minThick:
+		var fudgeFactor = line.width - minThick
+		fromPos.y += fudgeFactor
+		toPos.y += fudgeFactor
 	var points = [
 		fromPos,
 		toPos		
@@ -145,14 +141,7 @@ func new_line(parent_line: Line2D, fromPos: Vector2, toPos: Vector2):
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	self._mutate_old_points(delta)
-	#if not queue:
-	#	var pos = _get_position()
-	#	pos.x = pos.x + 15
-	#	queue.push_front(pos)
-	#	queueRadians.push_front(0)
-	#	queueHowLongLived.push_front(0)
-	#	queueOriginalValues.push_front(0)
-	#	time_since_last_point = 0
+
 	time_since_last_point += delta
 	if time_since_last_point > point_every:
 		time_since_last_point = 0
@@ -164,53 +153,30 @@ func _process(delta):
 		if not impulse:
 			impulse = 0
 		var impulseRadians = remap(impulse, 0, 200, -1.0, 1.0)
-		#print("adding height " + str(energied_height))
-		#if last_sign:
-			#pos.y += impulse
-			#last_sign = false
-		#else:
+		var newRadians = 0
 		if queue.size() > 2:
 			if DEBUG:
 				print('prev radians = ' + str(queueRadians[0]))
 				print('prev radians + delta = ' + str(queueRadians[0] + (delta*speed)))
 				print('with sin = ' + str(sin(queueRadians[0] + (delta*speed))))
-			var newRadians = (sin(queueRadians[0] + (delta*speed)))
+			newRadians = (sin(queueRadians[0] + (delta*speed)))
 			if DEBUG:
 				print("New Radians = " + str(newRadians))
 			pos.y = _get_position().y + (newRadians * impulse)
-			#if impulse:
-			#	pos.y = pos.y + (sin(queueRadians[-1] - (delta*3)))
-			#else:
-				#pos.y = pos.y + (sin(queueRadians[-1] - (delta*3)))
 		else:
 			pos.y  = _get_position().y + (sin(0 + (delta*DELTA_MULTIPLIER)) * impulse)
+			newRadians = 0
 		if DEBUG:
 			print("pushing impulse " + str(impulse) + " at y " + str(pos.y))
-			#last_sign = true
 
-		#queue.insert(0, pos)
-		#add_point(pos, 0)
-		#width_curve.clear_points()
-		#print('point count = ' + str(self.get_point_count()))
-		#print('saved width count = ' + str(saved_widths.size()))
-		#var curve_increment : float = 1.0 / self.get_point_count()
-		#for i in range(0, self.get_point_count()):
-		#	if saved_widths.size() > i:
-		#		width_curve.add_point(Vector2(curve_increment*i, saved_widths[i]))
-		#	else:
-		#		var newwidth = rng.randf() * 5
-		#		saved_widths.insert(i, newwidth)
-		#		width_curve.add_point(Vector2(curve_increment*i, newwidth))
-			#print('added at curve increment ' + str(curve_increment*i))
-		#print(saved_widths)
-		#width_curve.bake()
+
 		var old_point = null;
 		if last_parent != null:
 			old_point = last_parent.get_point_position(1)
-			var nl = new_line(last_parent, old_point, pos)
+			var nl = new_line(last_parent, old_point, pos, newRadians)
 			last_parent = nl;
 		elif last_point != Vector2.ZERO:
-			var nl = new_line(null, last_point, pos)
+			var nl = new_line(null, last_point, pos, newRadians)
 			last_parent = nl;
 		else:
 			print('initial point = ' + str(pos))
@@ -229,23 +195,6 @@ func _process(delta):
 				print(queueRadians[i])
 		if DEBUG:
 			print('ending queue')
-		
-	#clear_points()
-	#if queue.size() > 0:
-		#add_point(queue[0])
-	#if DEBUG:
-	#	print('starting queue')
-	#add_point(Vector2(630, 300))
-	#self.width_curve.clear_points()
-	#for point in queue:
-	#	self.width_curve.add_point(point)
-	#self.width_curve.bake()
-	#for i in range(0, queue.size()):
-	#	add_point(self.queue[i])
-	#if DEBUG:
-	#	print('ending queue')
-	#var p = self.width_curve.get_baked_points
-	#print(p)
 
 
 func _get_position():

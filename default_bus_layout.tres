@@ -1,8 +1,28 @@
-[gd_resource type="AudioBusLayout" load_steps=2 format=3 uid="uid://byxtiup0hs2og"]
+[gd_resource type="AudioBusLayout" load_steps=3 format=3 uid="uid://byxtiup0hs2og"]
 
 [sub_resource type="AudioEffectSpectrumAnalyzer" id="AudioEffectSpectrumAnalyzer_ihlsb"]
 resource_name = "SpectrumAnalyzer"
 
+[sub_resource type="AudioEffectReverb" id="AudioEffectReverb_5w7jr"]
+resource_name = "Reverb"
+room_size = 0.64
+damping = 0.6
+wet = 0.37
+
 [resource]
 bus/0/effect/0/effect = SubResource("AudioEffectSpectrumAnalyzer_ihlsb")
 bus/0/effect/0/enabled = true
+bus/0/effect/1/effect = SubResource("AudioEffectReverb_5w7jr")
+bus/0/effect/1/enabled = true
+bus/1/name = &"Flute"
+bus/1/solo = false
+bus/1/mute = false
+bus/1/bypass_fx = false
+bus/1/volume_db = 0.0
+bus/1/send = &"Master"
+bus/2/name = &"Guitar"
+bus/2/solo = false
+bus/2/mute = false
+bus/2/bypass_fx = false
+bus/2/volume_db = 0.0
+bus/2/send = &"Master"

@@ -17,9 +17,9 @@ config/icon="res://icon.svg"
 
 [editor]
 
-movie_writer/movie_file="/home/thcrock/Videos/line_music_visualizer/visualizer_boosted.avi"
+movie_writer/movie_file="/home/thcrock/Videos/line_music_visualizer/visualizer_vs_bass.avi"
 
 [rendering]
 
 renderer/rendering_method="mobile"
-environment/defaults/default_clear_color=Color(0.917647, 0.847059, 0.756863, 1)
+environment/defaults/default_clear_color=Color(0.0470588, 0.0980392, 0.105882, 1)

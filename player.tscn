@@ -1,10 +1,11 @@
-[gd_scene load_steps=6 format=3 uid="uid://d1buhsdr2l6fu"]
+[gd_scene load_steps=7 format=3 uid="uid://d1buhsdr2l6fu"]
 
 [ext_resource type="Script" path="res://player.gd" id="1_p7cck"]
 [ext_resource type="Texture2D" uid="uid://b7dg4pfv5wkuv" path="res://icon.svg" id="2_5ggw5"]
 [ext_resource type="PackedScene" uid="uid://dcu83qqbw8nt7" path="res://trail.tscn" id="3_ucavu"]
 [ext_resource type="Script" path="res://TrailObject.gd" id="4_s4he6"]
-[ext_resource type="AudioStream" uid="uid://cq2m8he4u3ic5" path="res://winter_moon_liveclarinet.mp3" id="5_yvdvm"]
+[ext_resource type="AudioStream" uid="uid://bo3w2ubdm07s7" path="res://Wild Birds-Flute.mp3" id="5_swedl"]
+[ext_resource type="AudioStream" uid="uid://1k22y7q88cnc" path="res://Wild Birds-Classical_Guitar.mp3" id="6_nwplg"]
 
 [node name="player" type="CharacterBody2D"]
 position = Vector2(591, 163)
@@ -24,5 +25,11 @@ script = ExtResource("4_s4he6")
 MAX_LENGTH = 39
 
 [node name="Player" type="AudioStreamPlayer" parent="."]
-stream = ExtResource("5_yvdvm")
+stream = ExtResource("5_swedl")
 autoplay = true
+bus = &"Flute"
+
+[node name="Player2" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("6_nwplg")
+autoplay = true
+bus = &"Guitar"
