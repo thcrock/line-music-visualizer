@@ -7,29 +7,52 @@
 [ext_resource type="AudioStream" uid="uid://bo3w2ubdm07s7" path="res://Wild Birds-Flute.mp3" id="5_swedl"]
 [ext_resource type="AudioStream" uid="uid://1k22y7q88cnc" path="res://Wild Birds-Classical_Guitar.mp3" id="6_nwplg"]
 
-[node name="player" type="CharacterBody2D"]
-position = Vector2(591, 163)
+[node name="Node2D" type="Node2D"]
+
+[node name="player" type="CharacterBody2D" parent="."]
+position = Vector2(591, 145.195)
 scale = Vector2(0.25, 0.25)
 script = ExtResource("1_p7cck")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="Sprite2D" type="Sprite2D" parent="player"]
 visible = false
 texture = ExtResource("2_5ggw5")
 
-[node name="Trail" parent="." instance=ExtResource("3_ucavu")]
+[node name="Trail" parent="player" instance=ExtResource("3_ucavu")]
 top_level = true
 z_index = -1
 points = PackedVector2Array(516, 146)
 end_cap_mode = 1
 script = ExtResource("4_s4he6")
 MAX_LENGTH = 39
+bus_id = 1
+max_height = 50
 
-[node name="Player" type="AudioStreamPlayer" parent="."]
+[node name="Player" type="AudioStreamPlayer" parent="player"]
 stream = ExtResource("5_swedl")
 autoplay = true
 bus = &"Flute"
 
-[node name="Player2" type="AudioStreamPlayer" parent="."]
+[node name="player2" type="CharacterBody2D" parent="."]
+position = Vector2(591, 350)
+scale = Vector2(0.25, 0.25)
+script = ExtResource("1_p7cck")
+
+[node name="Sprite2D" type="Sprite2D" parent="player2"]
+visible = false
+texture = ExtResource("2_5ggw5")
+
+[node name="Trail" parent="player2" instance=ExtResource("3_ucavu")]
+top_level = true
+z_index = -1
+points = PackedVector2Array(516, 146)
+end_cap_mode = 1
+script = ExtResource("4_s4he6")
+MAX_LENGTH = 39
+bus_id = 2
+max_height = 50
+
+[node name="Player2" type="AudioStreamPlayer" parent="player2"]
 stream = ExtResource("6_nwplg")
 autoplay = true
 bus = &"Guitar"

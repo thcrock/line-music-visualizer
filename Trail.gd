@@ -4,6 +4,8 @@ class_name Trails
 var queue : Array
 var saved_widths : Array
 @export var MAX_LENGTH : int
+@export var bus_id : int
+@export var max_height : int
 var x_offset : float = 0
 var point_every : float = 0.05
 var time_since_last_point : float = 0
@@ -152,7 +154,7 @@ func _process(delta):
 		var speed = impulseData[1]
 		if not impulse:
 			impulse = 0
-		var impulseRadians = remap(impulse, 0, 200, -1.0, 1.0)
+		var impulseRadians = remap(impulse, 0, max_height, -1.0, 1.0)
 		var newRadians = 0
 		if queue.size() > 2:
 			if DEBUG:
@@ -266,7 +268,7 @@ func _get_impulse():
 		print("frequencyDiff = " + str(frequencyDiff))
 	if is_inf(frequencyDiff) or is_nan(frequencyDiff):
 		frequencyDiff = 0.0
-	var impulse = remap(frequencyDiff, -200, 200, 0, 200)
+	var impulse = remap(frequencyDiff, -200, 200, 0, max_height)
 	if impulse < 0:
 		impulse = 0
 	#if DEBUG:
@@ -283,6 +285,6 @@ func _get_impulse():
 	return [impulse, speed]
 
 func _ready():
-	spectrum = AudioServer.get_bus_effect_instance(0, 0)
+	spectrum = AudioServer.get_bus_effect_instance(bus_id, 0)
 	rng = RandomNumberGenerator.new()
 	#width_curve.clear_points()
