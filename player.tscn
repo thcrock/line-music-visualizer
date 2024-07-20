@@ -24,9 +24,11 @@ z_index = -1
 points = PackedVector2Array(516, 146)
 end_cap_mode = 1
 script = ExtResource("4_s4he6")
+width_multiplier = 1.5
 MAX_LENGTH = 39
 bus_id = 1
 max_height = 50
+color = Color(0.933333, 0.909804, 0.172549, 1)
 
 [node name="Player" type="AudioStreamPlayer" parent="player"]
 stream = ExtResource("5_swedl")
@@ -42,17 +44,19 @@ script = ExtResource("1_p7cck")
 visible = false
 texture = ExtResource("2_5ggw5")
 
+[node name="Player2" type="AudioStreamPlayer" parent="player2"]
+stream = ExtResource("6_nwplg")
+autoplay = true
+bus = &"Guitar"
+
 [node name="Trail" parent="player2" instance=ExtResource("3_ucavu")]
 top_level = true
 z_index = -1
 points = PackedVector2Array(516, 146)
+default_color = Color(0.521569, 0.372549, 0.188235, 1)
 end_cap_mode = 1
 script = ExtResource("4_s4he6")
 MAX_LENGTH = 39
 bus_id = 2
 max_height = 50
-
-[node name="Player2" type="AudioStreamPlayer" parent="player2"]
-stream = ExtResource("6_nwplg")
-autoplay = true
-bus = &"Guitar"
+color = Color(0.592157, 0.917647, 0.823529, 1)

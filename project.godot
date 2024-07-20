@@ -22,4 +22,4 @@ movie_writer/movie_file="/home/thcrock/Videos/line_music_visualizer/visualizer_v
 [rendering]
 
 renderer/rendering_method="mobile"
-environment/defaults/default_clear_color=Color(0.0470588, 0.0980392, 0.105882, 1)
+environment/defaults/default_clear_color=Color(0.133333, 0.545098, 0.133333, 1)

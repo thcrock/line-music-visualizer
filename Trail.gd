@@ -1,11 +1,13 @@
 extends Node2D
 class_name Trails
 
+@export var width_multiplier : float = 1.0
 var queue : Array
 var saved_widths : Array
 @export var MAX_LENGTH : int
 @export var bus_id : int
 @export var max_height : int
+@export var color : Color
 var x_offset : float = 0
 var point_every : float = 0.05
 var time_since_last_point : float = 0
@@ -119,11 +121,13 @@ func new_line(parent_line: Line2D, fromPos: Vector2, toPos: Vector2, radians: fl
 	if not shouldGetThick:
 		line.width = minThick
 	#print(line.width)
+	line.width *= width_multiplier;
 		
 	self.last_width = line.width;
 			
 	line.antialiased = true;
-	line.default_color = Color(255.0/255, 16.0/255, 240.0/255, 1)
+	line.default_color = color;
+	#line.default_color = Color(255.0/255, 16.0/255, 240.0/255, 1)
 	if line.width > minThick:
 		var fudgeFactor = line.width - minThick
 		fromPos.y += fudgeFactor
