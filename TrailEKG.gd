@@ -1,5 +1,5 @@
 extends Node2D
-class_name Trails
+class_name TrailsEKG
 
 @export var width_multiplier : float = 1.0
 var queue : Array
@@ -36,10 +36,12 @@ var points_left_in_direction : int = 4;
 
 var spectrum
 
+func _get_position():
+	return get_parent().position
 
 func _mutate_point(child: Node2D):
 	var l = child as Line2D;
-	if l.get_point_position(0).x < -200:
+	if l.get_point_position(0).x < -100:
 		#print('reparenting children of ' + str(child))
 		for c2 in child.get_children():
 			c2.reparent(self)
@@ -153,11 +155,11 @@ func _process(delta):
 		time_since_last_point = 0
 		var pos = _get_position()
 		#pos.y = get_global_mouse_position().y
-		var impulseData = _get_impulse()
-		var impulse = impulseData[0]
-		var speed = impulseData[1]
+		var impulseData = get_parent().get_impulse()
+		var impulse = impulseData
 		if not impulse:
 			impulse = 0
+		var speed = 5
 		var impulseRadians = remap(impulse, 0, max_height, -1.0, 1.0)
 		var newRadians = 0
 		if queue.size() > 2:
@@ -202,91 +204,7 @@ func _process(delta):
 		if DEBUG:
 			print('ending queue')
 
-
-func _get_position():
-	return get_global_mouse_position()
-
-
-func _save_frequencies():
-	var prev_hz = 0
-	for i in range(1, VU_COUNT + 1):
-		var hz = i * FREQ_MAX / VU_COUNT
-		var magnitude = spectrum.get_magnitude_for_frequency_range(prev_hz, hz).length()
-		#print(str(hz) + ", " + str(magnitude))
-		self.frequenciesThisFrame[hz] = linear_to_db(magnitude)
-		prev_hz = hz
-	#print(self.frequenciesThisFrame)
-
-func _frequency_diff():
-	var totalFrequencyDiff : float = 0;
-	var biggestFrequencyDiff : float = 0;
-	var frequencyOfBiggestDiff : float = 0;
-	for k in self.frequenciesThisFrame:
-		var v = self.frequenciesThisFrame[k]
-		var thisFrequencyDiff = 0;
-		if k in self.frequenciesLastFrame:
-			thisFrequencyDiff = v - self.frequenciesLastFrame[k]
-			#print('change of ' + str(thisFrequencyDiff))
-		else:
-			thisFrequencyDiff = v
-			#print('new of ' + str(thisFrequencyDiff))
-		if thisFrequencyDiff > biggestFrequencyDiff:
-			biggestFrequencyDiff = thisFrequencyDiff
-			frequencyOfBiggestDiff = k
-		totalFrequencyDiff += thisFrequencyDiff
-	#print("Total frequency diff: " + str(totalFrequencyDiff))
-	return [totalFrequencyDiff, frequencyOfBiggestDiff]
-			
-
-func _get_impulse():
-	var data = []
-	var total_magnitude = 0
-	var prev_hz = 0
-	var highest_magnitude = 0
-	var highest_hz = 0
-	var pstr = ''
-	self._save_frequencies()
-	var frequencyDiffInfo = self._frequency_diff()
-	var frequencyDiff = frequencyDiffInfo[0]
-	var frequencyWithBiggestDiff = frequencyDiffInfo[1]
-	"""
-	for i in range(1, VU_COUNT + 1):
-		var hz = i * FREQ_MAX / VU_COUNT
-		var magnitude = spectrum.get_magnitude_for_frequency_range(prev_hz, hz).length()
-		var energy = clampf((MIN_DB + linear_to_db(magnitude)) / MIN_DB, 0, 1)
-		if hz == highest_hz:
-			data.append([hz, energy])
-		prev_hz = hz
-	var final_hz = 0
-	var final_energy = 0
-	for row in data:
-		final_hz += row[0]
-		final_energy += row[1]
-	var energy = clampf((MIN_DB + linear_to_db(final_energy)) / MIN_DB, 0, 1)
-	if not data:
-		return []
-	"""
-	
-	self.frequenciesLastFrame = self.frequenciesThisFrame.duplicate(true)
-	if DEBUG:
-		print("frequencyDiff = " + str(frequencyDiff))
-	if is_inf(frequencyDiff) or is_nan(frequencyDiff):
-		frequencyDiff = 0.0
-	var impulse = remap(frequencyDiff, -200, 200, 0, max_height)
-	if impulse < 0:
-		impulse = 0
-	#if DEBUG:
-		#print("impulse = " + str(impulse))
-	#impulse = 50
-	#print('frequency with biggest diff = ' + str(frequencyWithBiggestDiff))
-	var speed = 0
-	if frequencyWithBiggestDiff > 4000:
-		speed = 10.0
-	elif frequencyWithBiggestDiff > 1000:
-		speed = 4.0
-	else:
-		speed = 1.0
-	return [impulse, speed]
+	queue_redraw()
 
 func _ready():
 	spectrum = AudioServer.get_bus_effect_instance(bus_id, 0)
