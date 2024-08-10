@@ -1,5 +1,5 @@
 extends Line2D
-class_name TrailsGlitchy
+class_name TrailSineGlitchy
 
 var queue : Array
 var saved_widths : Array
@@ -24,7 +24,7 @@ var queueHowLongLived : Array;
 var DEBUG = false;
 var rng : RandomNumberGenerator;
 
-var DELTA_MULTIPLIER = 4;
+var DELTA_MULTIPLIER = 90;
 
 var spectrum
 
@@ -49,15 +49,28 @@ func _process(delta):
 		time_since_last_point = 0
 		var pos = _get_position()
 		var impulse = get_parent().get_impulse()
+		var new_angle;
+		var unit_y;
 		if not impulse:
 			impulse = 0
 		if queue.size() > 2:
-			var unit_y = (sin(queueRadians[0] + (delta*DELTA_MULTIPLIER)))
+			print('radians is ')
+			print(queueRadians[0])
+			new_angle = (queueRadians[0] + (delta*DELTA_MULTIPLIER))
+			print("newAngle is ")
+			print(new_angle)
+
+			
+			unit_y = sin(new_angle)
+			print('result of sin is ')
+			print(unit_y)
+
 			if DEBUG:
 				print("Y offset of new point, before scaling for impulse = " + str(unit_y))
-			pos.y = _get_position().y + (unit_y * impulse)
 		else:
-			pos.y  = _get_position().y + (sin(0 + (delta*DELTA_MULTIPLIER)) * impulse)
+			new_angle = 0
+			unit_y = (sin(0 + (delta*DELTA_MULTIPLIER)))
+		pos.y  = _get_position().y + unit_y * impulse
 
 		queue.insert(0, pos)
 
@@ -66,7 +79,7 @@ func _process(delta):
 		queueOriginalValues.insert(0, impulse)
 		if DEBUG:
 			print('pushing arcsin of impulse ' + str(asin(impulse)))
-		queueRadians.insert(0, asin(impulse))
+		queueRadians.insert(0, new_angle)
 		queueHowLongLived.insert(0, 0)
 		if DEBUG:
 			print('starting queue')

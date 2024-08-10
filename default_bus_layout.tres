@@ -1,4 +1,4 @@
-[gd_resource type="AudioBusLayout" load_steps=5 format=3 uid="uid://byxtiup0hs2og"]
+[gd_resource type="AudioBusLayout" load_steps=6 format=3 uid="uid://byxtiup0hs2og"]
 
 [sub_resource type="AudioEffectSpectrumAnalyzer" id="AudioEffectSpectrumAnalyzer_ihlsb"]
 resource_name = "SpectrumAnalyzer"
@@ -8,12 +8,23 @@ fft_size = 0
 
 [sub_resource type="AudioEffectReverb" id="AudioEffectReverb_5w7jr"]
 resource_name = "Reverb"
-room_size = 0.52
-damping = 0.6
-wet = 0.37
+room_size = 0.17
+damping = 1.0
+spread = 0.32
+wet = 0.05
+
+[sub_resource type="AudioEffectEQ" id="AudioEffectEQ_ilvpl"]
+resource_name = "EQ"
+band_db/32_hz = 3.5
+band_db/320_hz = -3.1
+band_db/1000_hz = -0.6
+band_db/3200_hz = -2.6
+band_db/10000_hz = -20.3
 
 [sub_resource type="AudioEffectSpectrumAnalyzer" id="AudioEffectSpectrumAnalyzer_oqulx"]
 resource_name = "SpectrumAnalyzer"
+buffer_length = 0.4
+fft_size = 0
 
 [sub_resource type="AudioEffectSpectrumAnalyzer" id="AudioEffectSpectrumAnalyzer_6uqcu"]
 resource_name = "SpectrumAnalyzer"
@@ -25,6 +36,8 @@ bus/0/effect/0/effect = SubResource("AudioEffectSpectrumAnalyzer_ihlsb")
 bus/0/effect/0/enabled = true
 bus/0/effect/1/effect = SubResource("AudioEffectReverb_5w7jr")
 bus/0/effect/1/enabled = true
+bus/0/effect/2/effect = SubResource("AudioEffectEQ_ilvpl")
+bus/0/effect/2/enabled = true
 bus/1/name = &"Bus 1"
 bus/1/solo = false
 bus/1/mute = false

@@ -61,35 +61,14 @@ func _mutate_point(child: Node2D):
 func _mutate_old_points(delta):
 	for child in self.get_children():
 		_mutate_point(child)
-
-		
-		
+	
 	for i in range(1, queue.size()):
 		var point = queue[i]
 		point.x = point.x - 2
-		#self.set_point_position(i, point)
-		
-		var reductionConstant = 0.0
-		var reductionFactor = queueHowLongLived[i] * reductionConstant
-		var new_amplitude = queueOriginalValues[i] / (1 + reductionFactor)
-		#if DEBUG:
-			#print("penultimate point amp is " + str(queueOriginalValues[i]))
-			#print("new amp is " + str(new_amplitude))
-			#print("radians was " + str(queueRadians[i]))
-			#print("old point was " + str(point.y))
-		if new_amplitude < 0:
-			new_amplitude = 0
-#		queueRadians[i] += delta * DELTA_MULTIPLIER
-#		if DEBUG:
-#			print("new radians is " + str(queueRadians[i]))
-#		point.y = _get_position().y + (sin(queueRadians[i]) * new_amplitude)
-#		if DEBUG:
-#			print("new y is " + str(point.y))
 		queueHowLongLived[i] += 1
 
 		queue[i] = point
 		
-		#set_point_position(i,  Vector2(point.x, point.y))	
 func _compute_new_width(direction : DIRECTION):
 	var new_width;
 	if direction == DIRECTION.INC:
@@ -160,7 +139,6 @@ func _process(delta):
 		if not impulse:
 			impulse = 0
 		var speed = 5
-		var impulseRadians = remap(impulse, 0, max_height, -1.0, 1.0)
 		var newRadians = 0
 		if queue.size() > 2:
 			if DEBUG:

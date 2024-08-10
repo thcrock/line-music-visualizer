@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://dcu83qqbw8nt7"]
 
-[ext_resource type="Script" path="res://TrailEKG.gd" id="1_wnh3t"]
+[ext_resource type="Script" path="res://TrailStableEKG.gd" id="1_wnh3t"]
 
 [sub_resource type="Curve" id="Curve_kakg0"]
 max_value = 7.0

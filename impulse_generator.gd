@@ -2,7 +2,7 @@ extends Node
 @export var bus_id : int
 @export var max_impulse : int
 var spectrum
-var DEBUG : bool = true
+var DEBUG : bool = false	
 const FREQUENCY_RANGES = [
 	[0, 100],
 	[100, 250],
@@ -50,7 +50,7 @@ func _frequency_diff():
 		else:
 			thisFrequencyDiff = v
 			if DEBUG:
-				print('band ' + k + ' had new ' + str(thisFrequencyDiff))
+				print('band ' + str(k) + ' had new ' + str(thisFrequencyDiff))
 		if thisFrequencyDiff > biggestFrequencyDiff:
 			biggestFrequencyDiff = thisFrequencyDiff
 			frequencyOfBiggestDiff = k

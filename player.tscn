@@ -2,8 +2,8 @@
 
 [ext_resource type="PackedScene" uid="uid://dcu83qqbw8nt7" path="res://trail.tscn" id="3_ucavu"]
 [ext_resource type="Script" path="res://impulse_simple.gd" id="5_528dm"]
-[ext_resource type="AudioStream" uid="uid://bti2apdfjed4r" path="res://20240801_upbeat_for_viz_justdrums.mp3" id="5_epu0i"]
-[ext_resource type="Script" path="res://TrailGlitchy.gd" id="5_go0ua"]
+[ext_resource type="Script" path="res://TrailGlitchySine.gd" id="5_d2u5c"]
+[ext_resource type="Script" path="res://TrailGlitchyEKG.gd" id="5_go0ua"]
 [ext_resource type="Script" path="res://DisplayImpulse.gd" id="6_5hg28"]
 [ext_resource type="AudioStream" uid="uid://dv57gwqhfsxm" path="res://20240801_upbeat_for_viz_noverb.mp3" id="6_pwfoo"]
 
@@ -15,6 +15,7 @@ font_color = Color(0, 0, 0, 1)
 position = Vector2(2, 5)
 
 [node name="TrailNodeGlitchy" type="CharacterBody2D" parent="."]
+process_mode = 4
 position = Vector2(560, 233)
 scale = Vector2(0.25, 0.25)
 script = ExtResource("5_528dm")
@@ -22,7 +23,7 @@ bus_id = 1
 max_impulse = 100
 
 [node name="Player2" type="AudioStreamPlayer" parent="TrailNodeGlitchy"]
-stream = ExtResource("5_epu0i")
+stream = ExtResource("6_pwfoo")
 autoplay = true
 bus = &"Bus 1"
 
@@ -36,7 +37,6 @@ script = ExtResource("5_go0ua")
 max_height = 50
 
 [node name="TrailNodeEKG" type="CharacterBody2D" parent="."]
-process_mode = 4
 position = Vector2(561, 240)
 scale = Vector2(0.25, 0.25)
 script = ExtResource("5_528dm")
@@ -47,7 +47,7 @@ top_level = true
 z_index = -1
 points = PackedVector2Array(516, 146)
 end_cap_mode = 1
-MAX_LENGTH = 0
+script = ExtResource("5_d2u5c")
 
 [node name="Player" type="AudioStreamPlayer" parent="TrailNodeEKG"]
 stream = ExtResource("6_pwfoo")
